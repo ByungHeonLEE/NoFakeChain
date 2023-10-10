@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ImageUpload from './ImageUpload';
 import ImageGallery from './ImageGallery';
-import Header from './Header';
+import MainPage from './MainPage';
 
 function App() {
   return (
     <div className='App'>
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="/" element ={<ImageUpload/>} />
-          <Route path="/gallery" element = {<ImageGallery/>} />
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+          <Route path='/' element={<MainPage />} />
+          <Route path="/upload" element ={<ImageUpload />} />
+          <Route path="/gallery" element = {<ImageGallery />} />
+      </Routes>
     </div>
   );
 }

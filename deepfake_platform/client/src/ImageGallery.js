@@ -4,18 +4,25 @@ import './ImageGallery.css';  // For additional styling if needed
 
 function ImageGallery() {
     const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchData() {
             try {
                 const response = await axios.get('http://127.0.0.1:5000/api/images');
                 setImages(response.data);
+                setLoading(false);
             } catch (error) {
-                console.error("Error fetching images:", error);
+                setError(error.message);
+                setLoading(false);
             }
         }
         fetchData();
     }, []);
+
+    if (loading) return <div>Loading....</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="container mt-5">
@@ -24,9 +31,11 @@ function ImageGallery() {
                 {images.map(image => (
                     <div key={image._id} className="col-md-4 mb-4">
                         <div className="card">
-                            <img src={image.url} alt={image.title} className="card-img-top" />
+                            <img src={`${process.env.PUBLIC_URL}/${image.path}`} alt={image.title} className="card-img-top" />
+                            <div>The path is: {image.path}</div>
                             <div className="card-body">
                                 <h5 className="card-title">{image.title}</h5>
+                                <p className="card-text">{image.description}</p>
                             </div>
                         </div>
                     </div>
