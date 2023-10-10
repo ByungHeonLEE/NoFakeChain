@@ -1,53 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for
-from werkzeug.utils import secure_filename
-import os
-
-# Importing our custom modules
-# from deepfake_detection import is_deepfake
-# from blockchain_integration import upload_to_ipfs, create_nft
-from deepfake_detection.detector import is_deepfake
+from flask import Flask, request, jsonify
+from flask_pymongo import PyMongo
+from flask_cors import CORS
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'flv', 'mkv'}
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# MongoDB configuration
+app.config["MONGO_URI"] = "mongodb://localhost:27017/Hackathon"
+mongo = PyMongo(app)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"error": "No Image file provided"}), 400
+    
+    image_file = request.files['image']
+    if image_file.filename == '':
+        return jsonify({"error": "No Image file selected"}), 400
 
-@app.route('/')
-def index():
-    return render_template('upload.html')
+    # Save the Image directly in MongoDB
+    images = mongo.db.images
+    image_data = {"content": image_file.read()}
+    image_id = images.insert_one(image_data).inserted_id
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        
-        # Check if video is a deepfake
-        if is_deepfake(file_path):
-            ipfs_hash = upload_to_ipfs(file_path)
-            nft_id = create_nft(ipfs_hash)
-            return f"Video is a deepfake! NFT created with ID: {nft_id}"
-        else:
-            return "Video is genuine!"
+    # # Save the Video to a file system or cloud and store only the reference in MongoDB
+    # video_path = f"videos/{video_file.filename}"  # Update this path as needed
+    # video_file.save(video_path)
 
-    return redirect(url_for('index'))
-
-@app.route('/view/<video_id>')
-def view_video(video_id):
-    # Fetch video details from database or blockchain using video_id
-    video_url = get_video_url(video_id)
-    video_status = get_video_status(video_id)  # Returns 'Genuine' or 'Deepfake'
-    return render_template('view_video.html', video_url=video_url, video_status=video_status)
+    # # Save video reference to MongoDB
+    # videos = mongo.db.videos
+    # video_data = {"path": video_path}
+    # video_id = videos.insert_one(video_data).inserted_id
+    
+    return jsonify(str(image_id))
 
 if __name__ == '__main__':
     app.run(debug=True)
