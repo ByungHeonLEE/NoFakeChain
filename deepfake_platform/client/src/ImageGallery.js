@@ -31,7 +31,7 @@ function ImageGallery() {
                 {images.map(image => (
                     <div key={image._id} className="col-md-4 mb-4">
                         <div className="card">
-                            <img src={`${process.env.PUBLIC_URL}/${image.path}`} alt={image.title} className="card-img-top" />
+                            <img src={`http://127.0.0.1:5000/${image.path}`} alt={image.title} className="card-img-top" />
                             <div>The path is: {image.path}</div>
                             <div className="card-body">
                                 <h5 className="card-title">{image.title}</h5>

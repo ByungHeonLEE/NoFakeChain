@@ -4,15 +4,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ImageUpload from './ImageUpload';
 import ImageGallery from './ImageGallery';
 import MainPage from './MainPage';
+import Header from './Header';
 
 function App() {
   return (
     <div className='App'>
-      <Routes>
-          <Route path='/' element={<MainPage />} />
-          <Route path="/upload" element ={<ImageUpload />} />
-          <Route path="/gallery" element = {<ImageGallery />} />
-      </Routes>
+      <Header />
+        <Routes>
+            <Route path='/' element={<MainPage />} />
+            <Route path="/upload" element ={<ImageUpload />} />
+            <Route path="/gallery" element = {<ImageGallery />} />
+        </Routes>
     </div>
   );
 }
