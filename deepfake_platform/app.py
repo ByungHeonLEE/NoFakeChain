@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 
@@ -18,21 +18,42 @@ def upload_image():
     if image_file.filename == '':
         return jsonify({"error": "No Image file selected"}), 400
 
-    # Save the Image directly in MongoDB
+    title = request.form.get('title', 'Untitled')
+    description = request.form.get('description', 'Untitled')
+
+    # Save the Image to a file system or cloud and store only the reference in MongoDB
+    image_path = f"static/images/{image_file.filename}"  # Update this path as needed
+    image_file.save(image_path)
+
+    # Call the deepfake detection function
+    # is_deepfake = deepfake_detect.detect(image_path)
+
+    # Save Image reference to MongoDB
     images = mongo.db.images
-    image_data = {"content": image_file.read()}
+    image_data = {
+        "title": title,
+        "description": description,
+        "path": image_path
+        }
     image_id = images.insert_one(image_data).inserted_id
 
-    # # Save the Video to a file system or cloud and store only the reference in MongoDB
-    # video_path = f"videos/{video_file.filename}"  # Update this path as needed
-    # video_file.save(video_path)
-
-    # # Save video reference to MongoDB
-    # videos = mongo.db.videos
-    # video_data = {"path": video_path}
-    # video_id = videos.insert_one(video_data).inserted_id
-    
     return jsonify(str(image_id))
+
+@app.route('/api/images', methods=['GET'])
+def get_images():
+    try:
+        images = mongo.db.images.find()
+        image_list = []
+        for image in images:
+            image['_id'] = str(image['_id'])  # Convert ObjectId to string
+            image_list.append(image)
+        return jsonify(image_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/static/images/<filename>')
+def serve_images(filename):
+    return send_from_directory('static/images', filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
