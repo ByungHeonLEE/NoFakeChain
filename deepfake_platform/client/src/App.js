@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import { Routes, Route } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React from "react";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import ImageUpload from "./ImageUpload";
 import ImageGallery from "./ImageGallery";
 import MainPage from "./MainPage";

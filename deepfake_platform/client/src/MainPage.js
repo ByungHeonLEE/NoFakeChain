@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Container,
-  Navbar,
-  Nav,
-  Button,
-  Row,
-  Col,
-  Card,
-} from "react-bootstrap";
+import { Container, Button, Row, Col, Card } from "react-bootstrap";
 
 const MainPage = () => {
   const fullHeightStyle = {
