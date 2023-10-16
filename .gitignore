@@ -1,2 +1,6 @@
+.DS_Store
+
+dataset/
+
 *.pyc
 __pycache__/
