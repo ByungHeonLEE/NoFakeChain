@@ -8,17 +8,15 @@ import Footer from "./Footer";
 
 function App() {
   return (
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <div className="App">
-        <Header />
-        <Routes>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/upload" element={<ImageUpload />} />
-          <Route path="/gallery" element={<ImageGallery />} />
-        </Routes>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <div className="App">
+      <Header />
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/upload" element={<ImageUpload />} />
+        <Route path="/gallery" element={<ImageGallery />} />
+      </Routes>
+      <Footer />
+    </div>
   );
 }
 
