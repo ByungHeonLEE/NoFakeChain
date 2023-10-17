@@ -5,7 +5,7 @@
 docker compose -f docker-compose.mongodb.yml up -d
 
 # pip install
-pip install -r requirement.txt
+pip install -r requirements.txt
 
 # run server
 python app.py
