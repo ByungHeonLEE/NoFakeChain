@@ -3,25 +3,32 @@ from flask_cors import CORS
 import os 
 
 from server import interactor as db
+# from deepfake_detection import image_detector
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 def get_deepfake_result(file_path):
-    # is_deepfake = deepfake_detect.detect(file_path)
     return False
-
+    # img = image_detector.read_image(file_path)
+    # is_deepfake = image_detector.classify_image(img)
+    # return is_deepfake
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
-    # both of them are image
-    if 'image' not in request.files:
+    # name = image
+    data_key = "image"
+    if data_key not in request.files:
         return jsonify({"error": "No Image file provided"}), 400
     
-    file = request.files["image"]
-    if request.files['image'].filename == '':
+    file = request.files[data_key]
+    if request.files[data_key].filename == '':
         return jsonify({"error": "No Image file selected"}), 400
     
+    mimetype = file.mimetype.split("/")[0]
+    if not mimetype in ["image","video"]:
+        return jsonify({"error": "No Image file selected"}), 400
+
     # save on local storage
     rel_path = db.get_relative_path(file.filename)
     file_path = os.path.join(db.get_store_path(),rel_path)
@@ -39,6 +46,7 @@ def upload_image():
         "title": title,
         "description": description,
         "path": os.path.join(db.ARTICLE_PATH,rel_path),
+        "image_or_video": mimetype,
         "is_deepfake": is_deepfake
     }
     image_id = db.insert(image_data).inserted_id
