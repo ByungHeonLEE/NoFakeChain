@@ -1,6 +1,9 @@
 .DS_Store
+.venv
 
 dataset/
+
+/deepfake_platform/data/
 
 *.pyc
 __pycache__/
