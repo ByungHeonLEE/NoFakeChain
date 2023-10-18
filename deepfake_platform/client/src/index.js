@@ -7,10 +7,10 @@ const root = createRoot(document.getElementById("root"));
 
 setInterval(() => {
   root.render(
-    <BrowserRouter basename={process.env.PUBLIC_URL}>
-      <React.StrictMode>
+    <React.StrictMode>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <App />
-      </React.StrictMode>
-    </BrowserRouter>
+      </BrowserRouter>
+    </React.StrictMode>
   );
 }, 1000);

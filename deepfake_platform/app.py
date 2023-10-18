@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify, send_from_directory
-from flask_pymongo import PyMongo
 from flask_cors import CORS
+import os 
+
+from server import interactor as db
+# from deepfake_detection import image_detector
 
 
 from deepfake_detection import image_detector
@@ -9,38 +12,49 @@ from deepfake_detection import image_detector
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
-# MongoDB configuration
-app.config["MONGO_URI"] = "mongodb://localhost:27017/Hackathon"
-mongo = PyMongo(app)
+def get_deepfake_result(file_path):
+    return False
+    # img = image_detector.read_image(file_path)
+    # is_deepfake = image_detector.classify_image(img)
+    # return is_deepfake
 
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
-    if 'image' not in request.files:
+    # name = image
+    data_key = "image"
+    if data_key not in request.files:
         return jsonify({"error": "No Image file provided"}), 400
-
-    image_file = request.files['image']
-    if image_file.filename == '':
+    
+    file = request.files[data_key]
+    if request.files[data_key].filename == '':
+        return jsonify({"error": "No Image file selected"}), 400
+    
+    mimetype = file.mimetype.split("/")[0]
+    if not mimetype in ["image","video"]:
         return jsonify({"error": "No Image file selected"}), 400
 
+    # save on local storage
+    rel_path = db.get_relative_path(file.filename)
+    file_path = os.path.join(db.get_store_path(),rel_path)
+    file.save(file_path)
+
+    # assign data info
     title = request.form.get('title', 'Untitled')
     description = request.form.get('description', 'Untitled')
 
-    # Save the Image to a file system or cloud and store only the reference in MongoDB
-    image_path = f"static/images/{image_file.filename}"  # Update this path as needed
-    image_file.save(image_path)
-
     # Call the deepfake detection function
-    # is_deepfake = deepfake_detect.detect(image_path)
-
+    is_deepfake = get_deepfake_result(file_path)
+    
     # Save Image reference to MongoDB
-    images = mongo.db.images
     image_data = {
         "title": title,
         "description": description,
-        "path": image_path
+        "path": os.path.join(db.ARTICLE_PATH,rel_path),
+        "image_or_video": mimetype,
+        "is_deepfake": is_deepfake
     }
-    image_id = images.insert_one(image_data).inserted_id
+    image_id = db.insert(image_data).inserted_id
 
     return jsonify(str(image_id))
 
@@ -48,7 +62,7 @@ def upload_image():
 @app.route('/api/images', methods=['GET'])
 def get_images():
     try:
-        images = mongo.db.images.find()
+        images = db.get()
         image_list = []
         for image in images:
             image['_id'] = str(image['_id'])  # Convert ObjectId to string
@@ -58,9 +72,9 @@ def get_images():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/static/images/<filename>')
+@app.route(f'/{db.ARTICLE_PATH}/<filename>')
 def serve_images(filename):
-    return send_from_directory('static/images', filename)
+    return send_from_directory(db.get_store_path(), filename)
 
 
 @app.route('/classify', methods=['POST'])

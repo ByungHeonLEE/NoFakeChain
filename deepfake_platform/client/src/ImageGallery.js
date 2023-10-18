@@ -29,6 +29,29 @@ function ImageGallery() {
   if (loading) return <div>Loading....</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const content = (image) => {
+    if(image.image_or_video == "image"){
+      return <img
+                src={`http://127.0.0.1:5000/${image.path}`}
+                alt={image.title}
+                className="card-img-top"
+              />
+    } else if(image.image_or_video == "video") {
+      return <video
+                src={`http://127.0.0.1:5000/${image.path}`}
+                alt={image.title}
+                className="card-img-top"
+                controls
+              />
+    } else {
+      return <div
+                src={`http://127.0.0.1:5000/${image.path}`}
+                alt={image.title}
+                className="card-img-top"
+              />
+    }
+  }
+
   return (
     <div style={fullHeightStyle}>
       <div className="container mt-5">
@@ -37,11 +60,7 @@ function ImageGallery() {
           {images.map((image) => (
             <div key={image._id} className="col-md-4 mb-4">
               <div className="card">
-                <img
-                  src={`http://127.0.0.1:5000/${image.path}`}
-                  alt={image.title}
-                  className="card-img-top"
-                />
+                {content(image)}
                 <div>The path is: {image.path}</div>
                 <div className="card-body">
                   <h5 className="card-title">{image.title}</h5>

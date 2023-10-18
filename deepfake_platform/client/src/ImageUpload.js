@@ -36,7 +36,7 @@ function ImageUpload() {
       setTimeout(() => {
         setDeepfakeResult("detected");
         setShowDeepfakeModal(false);
-      }, 10000);
+      }, 2000);
     } catch (error) {
       setMessage("Error uploading Image. Please try again.");
       if (error.response) {
@@ -73,7 +73,7 @@ function ImageUpload() {
                   <label className="form-label">Select Image</label>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*, video/*"
                     className="form-control"
                     onChange={onFileChange}
                   />
