@@ -5,6 +5,10 @@ import os
 from server import interactor as db
 # from deepfake_detection import image_detector
 
+
+from deepfake_detection import image_detector
+
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
@@ -13,6 +17,7 @@ def get_deepfake_result(file_path):
     # img = image_detector.read_image(file_path)
     # is_deepfake = image_detector.classify_image(img)
     # return is_deepfake
+
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
@@ -53,6 +58,7 @@ def upload_image():
 
     return jsonify(str(image_id))
 
+
 @app.route('/api/images', methods=['GET'])
 def get_images():
     try:
@@ -65,9 +71,23 @@ def get_images():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route(f'/{db.ARTICLE_PATH}/<filename>')
 def serve_images(filename):
     return send_from_directory(db.get_store_path(), filename)
+
+
+@app.route('/classify', methods=['POST'])
+def classify():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided."}), 400
+
+    image = request.files['image']
+    image = image_detector.refine_image(image)
+    result = image_detector.classify_image(image)
+
+    return jsonify({"result": result})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

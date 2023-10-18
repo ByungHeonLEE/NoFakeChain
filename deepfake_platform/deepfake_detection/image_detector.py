@@ -8,9 +8,15 @@ from azimuthal import azimuthalAverage
 
 
 def read_image(filepath):
+    img = cv2.imread(filepath, 0)  # Grayscale
+    img = refine_image(img)
+
+    return img
+
+
+def refine_image(img):
     DSIZE = 224
 
-    img = cv2.imread(filepath, 0)  # Grayscale
     img = cv2.resize(img, dsize=(DSIZE, DSIZE), interpolation=cv2.INTER_AREA)
 
     return img
