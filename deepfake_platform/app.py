@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 
+
+from deepfake_detection import image_detector
+
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
@@ -9,11 +13,12 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 app.config["MONGO_URI"] = "mongodb://localhost:27017/Hackathon"
 mongo = PyMongo(app)
 
+
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
         return jsonify({"error": "No Image file provided"}), 400
-    
+
     image_file = request.files['image']
     if image_file.filename == '':
         return jsonify({"error": "No Image file selected"}), 400
@@ -34,10 +39,11 @@ def upload_image():
         "title": title,
         "description": description,
         "path": image_path
-        }
+    }
     image_id = images.insert_one(image_data).inserted_id
 
     return jsonify(str(image_id))
+
 
 @app.route('/api/images', methods=['GET'])
 def get_images():
@@ -51,9 +57,23 @@ def get_images():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/static/images/<filename>')
 def serve_images(filename):
     return send_from_directory('static/images', filename)
+
+
+@app.route('/classify', methods=['POST'])
+def classify():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file provided."}), 400
+
+    image = request.files['image']
+    image = image_detector.refine_image(image)
+    result = image_detector.classify_image(image)
+
+    return jsonify({"result": result})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
