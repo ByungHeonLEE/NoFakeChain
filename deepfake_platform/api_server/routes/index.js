@@ -18,7 +18,6 @@ router.get('/execute', async function(req, res, next) {
   console.log("decodeCLresponse >>", decodeCLresponse);
   const mint_Tx = await mintNFT("0xa40aa030A3ba4f42FDCd2B7bC33d5B03770290ea","0xa40aa030A3ba4f42FDCd2B7bC33d5B03770290ea");
   console.log("mint_Tx >>", mint_Tx);
-  res.send("complete")
   res.send(`
   chainlik functions transaction is ${cl_tx.hash} 
   functions response is ${decodeCLresponse} and 
