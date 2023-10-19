@@ -48,7 +48,6 @@ function Header() {
   return (
     <header className="masthead mb-auto">
       <div className="inner">
-        <h3 className="masthead-brand">NoFakeChain</h3>
         <nav className="nav nav-masthead justify-content-center">
           <Link to="/" className="nav-link active">
             Home
@@ -67,6 +66,7 @@ function Header() {
               : "Connect Wallet"}
           </button>
         </nav>
+        <hr />
       </div>
     </header>
   );

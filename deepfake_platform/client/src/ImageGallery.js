@@ -30,27 +30,33 @@ function ImageGallery() {
   if (error) return <div>Error: {error}</div>;
 
   const content = (image) => {
-    if(image.image_or_video == "image"){
-      return <img
-                src={`http://127.0.0.1:5000/${image.path}`}
-                alt={image.title}
-                className="card-img-top"
-              />
-    } else if(image.image_or_video == "video") {
-      return <video
-                src={`http://127.0.0.1:5000/${image.path}`}
-                alt={image.title}
-                className="card-img-top"
-                controls
-              />
+    if (image.image_or_video == "image") {
+      return (
+        <img
+          src={`http://127.0.0.1:5000/${image.path}`}
+          alt={image.title}
+          className="card-img-top"
+        />
+      );
+    } else if (image.image_or_video == "video") {
+      return (
+        <video
+          src={`http://127.0.0.1:5000/${image.path}`}
+          alt={image.title}
+          className="card-img-top"
+          controls
+        />
+      );
     } else {
-      return <div
-                src={`http://127.0.0.1:5000/${image.path}`}
-                alt={image.title}
-                className="card-img-top"
-              />
+      return (
+        <div
+          src={`http://127.0.0.1:5000/${image.path}`}
+          alt={image.title}
+          className="card-img-top"
+        />
+      );
     }
-  }
+  };
 
   return (
     <div style={fullHeightStyle}>
@@ -65,6 +71,7 @@ function ImageGallery() {
                 <div className="card-body">
                   <h5 className="card-title">{image.title}</h5>
                   <p className="card-text">{image.description}</p>
+                  <p className="card-text">Deepfake property</p>
                 </div>
               </div>
             </div>
