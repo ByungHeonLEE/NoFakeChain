@@ -81,15 +81,9 @@ def serve_images(filename):
     return send_from_directory(db.get_store_path(), filename)
 
 
-@app.route('/classify', methods=['POST'])
-def classify():
-    data = request.get_json()
-
-    if 'hash' not in data:
-        return jsonify({"error": "No IPFS hash provided."}), 400
-
-    hash = data['hash']
-    image_data = get_image_from_ipfs(hash)
+@app.route(f'/classify/<ipfshash>', methods=['POST'])
+def classify(ipfshash):
+    image_data = get_image_from_ipfs(ipfshash)
 
     if not image_data:
         return jsonify({"error": "Failed to fetch image from IPFS."}), 400
