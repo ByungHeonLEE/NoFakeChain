@@ -4,7 +4,7 @@ from pymongo import MongoClient
 # db config
 # <user>:<pw>@<ip>
 user_pw_prefix = ""
-ip_port = "localhost:27017"
+ip_port = "http://3.141.243.153:5000:27017"
 db_name = "Hackathon"
 collection_name = "info"
 CONNECTION_STRING = f"mongodb://{user_pw_prefix}{ip_port}/{db_name}"
@@ -30,6 +30,9 @@ def showAll():
 
 def delete():
    return get_db().delete_many({"title":"Untitled"})
+
+def update(info):
+   return get_db().update_one(info)
 
 ####### file path ########
 

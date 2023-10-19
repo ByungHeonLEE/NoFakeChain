@@ -29,6 +29,8 @@ def upload_to_ipfs():
     if not file:
         return jsonify({"error": "No file provided"}), 400
 
+    title = request.form.get('title', 'Untitled')
+
     client = ipfshttpclient.connect(
         '/dns/ipfs.infura.io/tcp/5001/https',
         auth=(os.environ.get("INFURA_ID"), os.environ.get("INFURA_SECRET_KEY"))
@@ -36,10 +38,19 @@ def upload_to_ipfs():
     
     try:
         result = client.add(file.read())
-        image_id = db.insert(result['Hash']).inserted_id
+        image_data = {
+            "ipfs_hash": result['Hash'],
+            "is_deepfaked": "true",
+            "title": title
+        }
+        image_id = db.insert(image_data).inserted_id
         return jsonify(str(image_id))
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
@@ -99,21 +110,23 @@ def serve_images(filename):
     return send_from_directory(db.get_store_path(), filename)
 
 
-@app.route('/classify', methods=['POST'])
-def classify():
-    data = request.get_json()
-
-    if 'hash' not in data:
-        return jsonify({"error": "No IPFS hash provided."}), 400
-
-    hash = data['hash']
-    image_data = get_image_from_ipfs(hash)
+@app.route(f'/classify/<ipfshash>', methods=['POST'])
+def classify(ipfshash):
+    image_data = get_image_from_ipfs(ipfshash)
 
     if not image_data:
         return jsonify({"error": "Failed to fetch image from IPFS."}), 400
 
     refined_image = image_detector.refine_image(image_data)
     result = image_detector.classify_image(refined_image)
+    query = {"ipfs_hash": ipfshash}
+    update = {
+        "$set": {
+            "is_deepfaked": str(result)
+        }
+    }
+
+    db_result = db.update(query, update)
 
     return jsonify({"result": result})
 
