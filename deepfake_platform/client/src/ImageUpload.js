@@ -5,8 +5,6 @@ import { Buffer } from "buffer";
 import { create } from "ipfs-http-client";
 
 global.Buffer = Buffer;
-const INFURA_ID2 = "2WxW0dRw04VEBl4LtJ4cxd1Xarm";
-const INFURA_SECRET_KEY2 = "7cf9fd2e17a3c657a8cd153af371a724";
 
 const projectId = process.env.REACT_APP_INFURA_ID;
 const projectSecret = process.env.REACT_APP_INFURA_SECRET_KEY;
