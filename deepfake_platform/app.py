@@ -8,9 +8,10 @@ from server import interactor as db
 
 from deepfake_detection import image_detector
 
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 def get_deepfake_result(file_path):
     return False
@@ -90,4 +91,4 @@ def classify():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
