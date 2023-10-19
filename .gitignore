@@ -7,3 +7,9 @@ dataset/
 
 *.pyc
 __pycache__/
+
+*.pem
+*.env
+node_modules/
+package.json
+package-lock.json

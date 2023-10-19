@@ -1,6 +1,26 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Buffer } from "buffer";
+import { create } from "ipfs-http-client";
+
+global.Buffer = Buffer;
+const INFURA_ID2 = "2WxW0dRw04VEBl4LtJ4cxd1Xarm";
+const INFURA_SECRET_KEY2 = "7cf9fd2e17a3c657a8cd153af371a724";
+
+const projectId = process.env.REACT_APP_INFURA_ID;
+const projectSecret = process.env.REACT_APP_INFURA_SECRET_KEY;
+const auth =
+  "Basic " + Buffer.from(`${projectId}:${projectSecret}`).toString("base64");
+
+const client = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  headers: {
+    authorization: auth,
+  },
+});
 
 function ImageUpload() {
   const [file, setFile] = useState(null);
@@ -12,6 +32,16 @@ function ImageUpload() {
     setFile(e.target.files[0]);
   };
 
+  const uploadToIPFS = async (file) => {
+    try {
+      const added = await client.add(file);
+      console.log("Successfully uploaded to IPFS: ", added);
+      return added.path;
+    } catch (error) {
+      console.error("Error uploading to IPFS: ", error);
+      return null;
+    }
+  };
   const onUpload = async () => {
     const formData = new FormData();
     formData.append("image", file);
@@ -49,6 +79,12 @@ function ImageUpload() {
         console.log("Error", error.message);
       }
       console.error("Error uploading Image:", error);
+    }
+    const ipfsHash = await uploadToIPFS(file);
+    if (ipfsHash) {
+      setMessage(`Image uploaded successfully! IPFS Hash: ${ipfsHash}`);
+    } else {
+      setMessage(`Image uploaded, but failed to upload to IPFS: `);
     }
   };
 
