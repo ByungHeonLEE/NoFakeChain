@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os 
+from dotenv import load_dotenv
 
 from server import interactor as db
 # from deepfake_detection import image_detector
-
-
 from deepfake_detection import image_detector
+
+load_dotenv()
 
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
 
