@@ -2,6 +2,9 @@
 .venv
 
 dataset/
+real/
+fake/
+model/
 
 /deepfake_platform/data/
 
