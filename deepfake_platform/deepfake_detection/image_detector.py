@@ -3,8 +3,7 @@ import numpy as np
 from joblib import load
 import os
 
-
-from azimuthal import azimuthalAverage
+from .azimuthal import azimuthalAverage
 
 
 def read_image(filepath):
