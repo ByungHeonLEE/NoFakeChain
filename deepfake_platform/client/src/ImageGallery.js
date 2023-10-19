@@ -15,7 +15,9 @@ function ImageGallery() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/images");
+        const response = await axios.get(
+          "http://3.141.243.153:5000/api/images"
+        );
         setImages(response.data);
         setLoading(false);
       } catch (error) {
@@ -33,7 +35,7 @@ function ImageGallery() {
     if (image.image_or_video == "image") {
       return (
         <img
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`http://3.141.243.153:5000/${image.path}`}
           alt={image.title}
           className="card-img-top"
         />
@@ -41,7 +43,7 @@ function ImageGallery() {
     } else if (image.image_or_video == "video") {
       return (
         <video
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`http://3.141.243.153:5000/${image.path}`}
           alt={image.title}
           className="card-img-top"
           controls
@@ -50,7 +52,7 @@ function ImageGallery() {
     } else {
       return (
         <div
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`http://3.141.243.153:5000/${image.path}`}
           alt={image.title}
           className="card-img-top"
         />

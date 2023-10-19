@@ -2,23 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Buffer } from "buffer";
-import { create } from "ipfs-http-client";
-
 global.Buffer = Buffer;
-
-const projectId = process.env.REACT_APP_INFURA_ID;
-const projectSecret = process.env.REACT_APP_INFURA_SECRET_KEY;
-const auth =
-  "Basic " + Buffer.from(`${projectId}:${projectSecret}`).toString("base64");
-
-const client = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  headers: {
-    authorization: auth,
-  },
-});
 
 function ImageUpload() {
   const [file, setFile] = useState(null);
@@ -30,32 +14,20 @@ function ImageUpload() {
     setFile(e.target.files[0]);
   };
 
-  const uploadToIPFS = async (file) => {
-    try {
-      const added = await client.add(file);
-      console.log("Successfully uploaded to IPFS: ", added);
-      return added.path;
-    } catch (error) {
-      console.error("Error uploading to IPFS: ", error);
-      return null;
-    }
-  };
   const onUpload = async () => {
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/api/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("Image uploaded:", response.data);
-      setMessage("Image uploaded successfully!");
+      const response = await fetch("http://3.141.243.153:5000/upload-to-ipfs", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.ipfs_hash) {
+        console.log("Successfully uploaded to IPFS: ", data.ipfs_hash);
+        return data.ipfs_hash;
+      }
 
       // Show the deepfake detection modal with spinner
       setShowDeepfakeModal(true);
@@ -77,12 +49,6 @@ function ImageUpload() {
         console.log("Error", error.message);
       }
       console.error("Error uploading Image:", error);
-    }
-    const ipfsHash = await uploadToIPFS(file);
-    if (ipfsHash) {
-      setMessage(`Image uploaded successfully! IPFS Hash: ${ipfsHash}`);
-    } else {
-      setMessage(`Image uploaded, but failed to upload to IPFS: `);
     }
   };
 

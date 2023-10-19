@@ -6,6 +6,7 @@ from deepfake_detection.azimuthal import azimuthalAverage
 
 from server import interactor as db
 from deepfake_detection import image_detector
+import ipfshttpclient
 
 load_dotenv()
 
@@ -20,6 +21,23 @@ def get_deepfake_result(file_path):
     # is_deepfake = image_detector.classify_image(img)
     # return is_deepfake
 
+@app.route('/upload-to-ipfs', methods=['POST'])
+def upload_to_ipfs():
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    client = ipfshttpclient.connect(
+        '/dns/ipfs.infura.io/tcp/5001/https',
+        auth=(os.environ.get("INFURA_ID"), os.environ.get("INFURA_SECRET_KEY"))
+    )
+    
+    try:
+        result = client.add(file.read())
+        image_id = db.insert(result['Hash']).inserted_id
+        return jsonify(str(image_id))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
