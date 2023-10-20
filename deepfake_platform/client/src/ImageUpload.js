@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function ImageUpload() {
@@ -18,15 +17,12 @@ function ImageUpload() {
     formData.append("file", file);
 
     try {
-      const response = await fetch(
-        "http://3.141.243.153:5000/api/upload-to-ipfs",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      console.log(response["ipfs_hash"]);
+      const response = await fetch("http://3.141.243.153:5000/api/upload-to-ipfs", {
+        method: "POST",
+        body: formData,
+      });
       setMessage("Image uploaded successfuly", response["ipfs_hash"]);
+
 
       // Show the deepfake detection modal with spinner
       setShowDeepfakeModal(true);

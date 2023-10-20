@@ -4,7 +4,7 @@ from pymongo import MongoClient
 # db config
 # <user>:<pw>@<ip>
 user_pw_prefix = ""
-ip_port = "3.141.243.153:27017"
+ip_port = "localhost:27017"
 db_name = "Hackathon"
 collection_name = "info"
 CONNECTION_STRING = f"mongodb://{user_pw_prefix}{ip_port}/{db_name}"
@@ -47,13 +47,15 @@ def get_relative_path(rel_path):
    store_path = get_store_path()
    origin_path = os.path.join(store_path,rel_path)
    i = 0
-   file_path = f'{origin_path}_{i}'
+   file_path = f'{origin_path}'
    while os.path.exists(file_path):
       i += 1
       file_path = f'{origin_path}_{i}'
 
-   return f'{rel_path}_{i}'
+   return f'{rel_path}'
 
 if __name__ == "__main__":   
    # showAll()
-   delete()
+   # delete()
+   showAll()
+   print(get_db())
