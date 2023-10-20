@@ -28,7 +28,7 @@ const chainLinkCall = async () => {
     .readFileSync(path.resolve(__dirname, "source.js"))
     .toString();
   //TODO 여기에 인자 값을 넣어서 넘긴다. 
-  const args = ["ETH", "USD"];
+  const args = [];
   const gasLimit = 300000;
 
   // Initialize ethers signer and provider to interact with the contracts onchain
@@ -202,10 +202,10 @@ async function decodeResponse(requestId) {
     if (ethers.utils.arrayify(responseBytesHexstring).length > 0) {
       const decodedResponse = decodeResult(
         response.responseBytesHexstring,
-        ReturnType.uint256
+        ReturnType.string
       );
       console.log(
-        `\n✅ Decoded response to ${ReturnType.uint256}: `,
+        `\n✅ Decoded response to ${ReturnType.string}: `,
         decodedResponse
       );
       return decodedResponse
