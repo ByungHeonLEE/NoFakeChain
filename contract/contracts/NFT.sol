@@ -22,14 +22,13 @@ contract NFT is ERC721, ERC721URIStorage, ERC721Pausable, Ownable, ERC721Burnabl
         _unpause();
     }
 
-    function mint(address to) public onlyOwner{
+    function mint(address to, string memory tokenURI) public onlyOwner{
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, "");
+        _setTokenURI(tokenId, tokenURI);
     }
 
     // The following functions are overrides required by Solidity.
-
     function _update(address to, uint256 tokenId, address auth)
         internal
         override(ERC721, ERC721Pausable)
