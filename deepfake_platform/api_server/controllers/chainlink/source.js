@@ -10,40 +10,36 @@ const fromSymbol = args[0];
 const toSymbol = args[1];
 
 // make HTTP request
-const url = `https://min-api.cryptocompare.com/data/pricemultifull`;
-console.log(`HTTP GET Request to ${url}?fsyms=${fromSymbol}&tsyms=${toSymbol}`);
+const url = process.env.AI_URL;
+// console.log(`HTTP GET Request to ${url}?fsyms=${fromSymbol}&tsyms=${toSymbol}`);
 
 // construct the HTTP Request object. See: https://github.com/smartcontractkit/functions-hardhat-starter-kit#javascript-code
 // params used for URL query parameters
-// Example of query: https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=USD
-const cryptoCompareRequest = Functions.makeHttpRequest({
+// Example of squery: https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=USD
+const noFakeRequest = Functions.makeHttpRequest({
   url: url,
+  method: "POST",
   headers: {
     "Content-Type": "application/json",
   },
-  params: {
-    fsyms: fromSymbol,
-    tsyms: toSymbol,
-  },
+  // params: {
+  //   fsyms: fromSymbol,
+  //   tsyms: toSymbol,
+  // },
 });
 
 // Execute the API request (Promise)
-const cryptoCompareResponse = await cryptoCompareRequest;
-if (cryptoCompareResponse.error) {
-  console.error(cryptoCompareResponse.error);
+const noFakeResponse = await noFakeRequest;
+if (noFakeResponse.error) {
+  console.error(noFakeResponse.error);
   throw Error("Request failed");
 }
 
-const data = cryptoCompareResponse["data"];
-if (data.Response === "Error") {
-  console.error(data.Message);
-  throw Error(`Functional error. Read message: ${data.Message}`);
-}
-
-// extract the price
-const price = data["RAW"][fromSymbol][toSymbol]["PRICE"];
-console.log(`${fromSymbol} price is: ${price.toFixed(2)} ${toSymbol}`);
-
 // Solidity doesn't support decimals so multiply by 100 and round to the nearest integer
 // Use Functions.encodeUint256 to encode an unsigned integer to a Buffer
-return Functions.encodeUint256(Math.round(price * 100));
+return Functions.encodeString(
+  `
+  data : ${noFakeResponse["data"]["result"]}
+  status : ${noFakeResponse["status"]}
+  `
+  );
