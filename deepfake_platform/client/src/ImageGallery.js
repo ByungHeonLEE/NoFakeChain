@@ -32,32 +32,13 @@ function ImageGallery() {
   if (error) return <div>Error: {error}</div>;
 
   const content = (image) => {
-    if (image.image_or_video == "image") {
-      return (
-        <img
-          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
-          alt={image.title}
-          className="card-img-top"
-        />
-      );
-    } else if (image.image_or_video == "video") {
-      return (
-        <video
-          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
-          alt={image.title}
-          className="card-img-top"
-          controls
-        />
-      );
-    } else {
-      return (
-        <div
-          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
-          alt={image.title}
-          className="card-img-top"
-        />
-      );
-    }
+    return (
+      <img
+        src={`https://ipfs.io/ipfs/${image.ipfs_hash}`}
+        alt={image.title}
+        className="card-img-top"
+      />
+    );
   };
 
   return (

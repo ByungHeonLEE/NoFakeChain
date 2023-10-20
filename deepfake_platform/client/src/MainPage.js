@@ -35,7 +35,6 @@ const MainPage = () => {
             <Card>
               <Card.Img variant="top" src={Image1} />
               <Card.Body>
-                <Card.Title>Feature 1</Card.Title>
                 <Card.Text>
                   You can check any type of the contents including video, image
                   and also text
@@ -47,7 +46,6 @@ const MainPage = () => {
             <Card>
               <Card.Img variant="top" src={Image2} />
               <Card.Body>
-                <Card.Title>Feature 2</Card.Title>
                 <Card.Text>
                   Leveraging blockchain's features to check the content's
                   authenticity
@@ -59,7 +57,6 @@ const MainPage = () => {
             <Card>
               <Card.Img variant="top" src={Image3} />
               <Card.Body>
-                <Card.Title>Feature 3</Card.Title>
                 <Card.Text>Blockchain App</Card.Text>
               </Card.Body>
             </Card>

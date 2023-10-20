@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Buffer } from "buffer";
-global.Buffer = Buffer;
 
 function ImageUpload() {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [showDeepfakeModal, setShowDeepfakeModal] = useState(false);
   const [deepfakeResult, setDeepfakeResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -19,24 +18,18 @@ function ImageUpload() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://3.141.243.153:5000/upload-to-ipfs", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      if (data.ipfs_hash) {
-        console.log("Successfully uploaded to IPFS: ", data.ipfs_hash);
-        return data.ipfs_hash;
-      }
+      const response = await fetch(
+        "http://3.141.243.153:5000/api/upload-to-ipfs",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      console.log(response["ipfs_hash"]);
+      setMessage("Image uploaded successfuly", response["ipfs_hash"]);
 
       // Show the deepfake detection modal with spinner
       setShowDeepfakeModal(true);
-
-      //simulate deepfake detection
-      setTimeout(() => {
-        setDeepfakeResult("detected");
-        setShowDeepfakeModal(false);
-      }, 2000);
     } catch (error) {
       setMessage("Error uploading Image. Please try again.");
       if (error.response) {
@@ -49,6 +42,22 @@ function ImageUpload() {
         console.log("Error", error.message);
       }
       console.error("Error uploading Image:", error);
+    }
+  };
+
+  const chainlinkFunctions = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post("http://localhost:3000/execute");
+      console.log(response.data);
+      setIsLoading(false);
+      alert("API is executing!"); // You can replace this with a more user-friendly notification, e.g. a toast
+      setMessage("Chainlink Functions implemented successfully", response.data);
+      setTimeout(() => {
+        setShowDeepfakeModal(false);
+      }, 10000);
+    } catch (error) {
+      console.error("Error: ", error);
     }
   };
 
@@ -95,7 +104,7 @@ function ImageUpload() {
                 {true ? (
                   <div className="d-flex justify-content-center">
                     <div className="spinner-border" role="status">
-                      <span className="sr-only">Loading...</span>
+                      <span className="sr-only"></span>
                     </div>
                   </div>
                 ) : deepfakeResult !== null ? (
@@ -121,8 +130,12 @@ function ImageUpload() {
                   Close
                 </button>
                 {deepfakeResult === null && (
-                  <button type="button" className="btn btn-primary">
-                    Integrate with Blockchain
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={chainlinkFunctions}
+                  >
+                    {isLoading ? "Executing..." : "Integrate with Blockchain"}
                   </button>
                 )}
               </div>
