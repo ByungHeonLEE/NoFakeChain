@@ -71,13 +71,15 @@ def serve_images(filename):
 
 @app.route(f'/api/classify/<ipfshash>', methods=['POST'])
 def classify(ipfshash):
-    image_data = get_image_from_ipfs(ipfshash)
+    # image_data = get_image_from_ipfs(ipfshash)
 
-    if not image_data:
-        return jsonify({"error": "Failed to fetch image from IPFS."}), 400
+    # if not image_data:
+    #     return jsonify({"error": "Failed to fetch image from IPFS."}), 400
 
-    refined_image = image_detector.refine_image(image_data)
-    result = image_detector.classify_image(refined_image)
+    # refined_image = image_detector.refine_image(image_data)
+    # result = image_detector.classify_image(refined_image)
+
+    result = "false"
     query = {"ipfs_hash": ipfshash}
     update = {
         "$set": {
