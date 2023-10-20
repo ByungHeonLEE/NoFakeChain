@@ -9,6 +9,9 @@ from server import interactor as db
 from deepfake_detection import image_detector
 import ipfshttpclient
 
+import numpy as np
+import cv2
+
 load_dotenv()
 
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
@@ -23,6 +26,7 @@ def get_deepfake_result(file_path):
     # is_deepfake = image_detector.classify_image(img)
     # return is_deepfake
 
+
 @app.route('/upload-to-ipfs', methods=['POST'])
 def upload_to_ipfs():
     file = request.files.get('file')
@@ -35,7 +39,7 @@ def upload_to_ipfs():
         '/dns/ipfs.infura.io/tcp/5001/https',
         auth=(os.environ.get("INFURA_ID"), os.environ.get("INFURA_SECRET_KEY"))
     )
-    
+
     try:
         result = client.add(file.read())
         image_data = {
@@ -45,11 +49,9 @@ def upload_to_ipfs():
         }
         image_id = db.insert(image_data).inserted_id
         return jsonify(str(image_id))
-    
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-
 
 
 @app.route('/api/upload', methods=['POST'])
@@ -117,7 +119,11 @@ def classify(ipfshash):
     if not image_data:
         return jsonify({"error": "Failed to fetch image from IPFS."}), 400
 
-    refined_image = image_detector.refine_image(image_data)
+    encoded_img = np.fromstring(image_data, dtype=np.uint8)
+    img = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    refined_image = image_detector.refine_image(img_gray)
+    
     result = image_detector.classify_image(refined_image)
     query = {"ipfs_hash": ipfshash}
     update = {
