@@ -1,11 +1,9 @@
 .DS_Store
 .venv
-
+.env.enc
 dataset/
-real/
-fake/
-model/
-
+.env
+/node_moudles
 /deepfake_platform/data/
 
 *.pyc
