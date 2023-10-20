@@ -9,6 +9,9 @@ from server import interactor as db
 from deepfake_detection import image_detector
 import ipfshttpclient
 
+import numpy as np
+import cv2
+
 load_dotenv()
 
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
@@ -16,14 +19,7 @@ allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
-
-def get_deepfake_result(file_path):
-    return False
-    # img = image_detector.read_image(file_path)
-    # is_deepfake = image_detector.classify_image(img)
-    # return is_deepfake
-
-@app.route('/upload-to-ipfs', methods=['POST'])
+@app.route('/api/upload-to-ipfs', methods=['POST'])
 def upload_to_ipfs():
     file = request.files.get('file')
     if not file:
@@ -35,22 +31,27 @@ def upload_to_ipfs():
         '/dns/ipfs.infura.io/tcp/5001/https',
         auth=(os.environ.get("INFURA_ID"), os.environ.get("INFURA_SECRET_KEY"))
     )
-    
+
     try:
-        result = client.add(file.read())
+        rel_path = db.get_relative_path(file.filename)
+        file_path = os.path.join(db.get_store_path(), rel_path)
+        custom_path = os.path.join("data/articles/"+ rel_path)
+        file.save(file_path)
+        result = client.add(custom_path)
+        print(result)
         image_data = {
             "ipfs_hash": result['Hash'],
             "is_deepfaked": "true",
             "title": title
         }
+        print(image_data)
         image_id = db.insert(image_data).inserted_id
+        print(image_id)
         return jsonify(str(image_id))
-    
+
     except Exception as e:
+        print (e)
         return jsonify({"error": str(e)}), 500
-    
-
-
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
@@ -110,14 +111,18 @@ def serve_images(filename):
     return send_from_directory(db.get_store_path(), filename)
 
 
-@app.route(f'/classify/<ipfshash>', methods=['POST'])
+@app.route(f'/api/classify/<ipfshash>', methods=['POST'])
 def classify(ipfshash):
     image_data = get_image_from_ipfs(ipfshash)
 
     if not image_data:
         return jsonify({"error": "Failed to fetch image from IPFS."}), 400
 
-    refined_image = image_detector.refine_image(image_data)
+    encoded_img = np.fromstring(image_data, dtype=np.uint8)
+    img = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    refined_image = image_detector.refine_image(img_gray)
+    
     result = image_detector.classify_image(refined_image)
     query = {"ipfs_hash": ipfshash}
     update = {
