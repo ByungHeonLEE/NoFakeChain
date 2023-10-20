@@ -9,6 +9,9 @@ from server import interactor as db
 from deepfake_detection import image_detector
 import ipfshttpclient
 
+import numpy as np
+import cv2
+
 load_dotenv()
 
 allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
@@ -28,7 +31,7 @@ def upload_to_ipfs():
         '/dns/ipfs.infura.io/tcp/5001/https',
         auth=(os.environ.get("INFURA_ID"), os.environ.get("INFURA_SECRET_KEY"))
     )
-    
+
     try:
         rel_path = db.get_relative_path(file.filename)
         file_path = os.path.join(db.get_store_path(), rel_path)
@@ -45,10 +48,49 @@ def upload_to_ipfs():
         image_id = db.insert(image_data).inserted_id
         print(image_id)
         return jsonify(str(image_id))
-    
+
     except Exception as e:
         print (e)
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    # name = image
+    data_key = "image"
+    if data_key not in request.files:
+        return jsonify({"error": "No Image file provided"}), 400
+
+    file = request.files[data_key]
+    if request.files[data_key].filename == '':
+        return jsonify({"error": "No Image file selected"}), 400
+
+    mimetype = file.mimetype.split("/")[0]
+    if not mimetype in ["image", "video"]:
+        return jsonify({"error": "No Image file selected"}), 400
+
+    # save on local storage
+    rel_path = db.get_relative_path(file.filename)
+    file_path = os.path.join(db.get_store_path(), rel_path)
+    file.save(file_path)
+
+    # assign data info
+    title = request.form.get('title', 'Untitled')
+    description = request.form.get('description', 'Untitled')
+
+    # Call the deepfake detection function
+    is_deepfake = get_deepfake_result(file_path)
+
+    # Save Image reference to MongoDB
+    image_data = {
+        "title": title,
+        "description": description,
+        "path": os.path.join(db.ARTICLE_PATH, rel_path),
+        "image_or_video": mimetype,
+        "is_deepfake": is_deepfake
+    }
+    image_id = db.insert(image_data).inserted_id
+
+    return jsonify(str(image_id))
 
 
 @app.route('/api/images', methods=['GET'])
@@ -71,15 +113,17 @@ def serve_images(filename):
 
 @app.route(f'/api/classify/<ipfshash>', methods=['POST'])
 def classify(ipfshash):
-    # image_data = get_image_from_ipfs(ipfshash)
+    image_data = get_image_from_ipfs(ipfshash)
 
-    # if not image_data:
-    #     return jsonify({"error": "Failed to fetch image from IPFS."}), 400
+    if not image_data:
+        return jsonify({"error": "Failed to fetch image from IPFS."}), 400
 
-    # refined_image = image_detector.refine_image(image_data)
-    # result = image_detector.classify_image(refined_image)
-
-    result = "false"
+    encoded_img = np.fromstring(image_data, dtype=np.uint8)
+    img = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    refined_image = image_detector.refine_image(img_gray)
+    
+    result = image_detector.classify_image(refined_image)
     query = {"ipfs_hash": ipfshash}
     update = {
         "$set": {
