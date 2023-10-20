@@ -16,14 +16,7 @@ allowed_origins = os.environ.get("ALLOWED_ORIGINS", "").split(",")
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
-
-def get_deepfake_result(file_path):
-    return False
-    # img = image_detector.read_image(file_path)
-    # is_deepfake = image_detector.classify_image(img)
-    # return is_deepfake
-
-@app.route('/upload-to-ipfs', methods=['POST'])
+@app.route('/api/upload-to-ipfs', methods=['POST'])
 def upload_to_ipfs():
     file = request.files.get('file')
     if not file:
@@ -37,59 +30,25 @@ def upload_to_ipfs():
     )
     
     try:
-        result = client.add(file.read())
+        rel_path = db.get_relative_path(file.filename)
+        file_path = os.path.join(db.get_store_path(), rel_path)
+        custom_path = os.path.join("data/articles/"+ rel_path)
+        file.save(file_path)
+        result = client.add(custom_path)
+        print(result)
         image_data = {
             "ipfs_hash": result['Hash'],
             "is_deepfaked": "true",
             "title": title
         }
+        print(image_data)
         image_id = db.insert(image_data).inserted_id
+        print(image_id)
         return jsonify(str(image_id))
     
     except Exception as e:
+        print (e)
         return jsonify({"error": str(e)}), 500
-    
-
-
-
-@app.route('/api/upload', methods=['POST'])
-def upload_image():
-    # name = image
-    data_key = "image"
-    if data_key not in request.files:
-        return jsonify({"error": "No Image file provided"}), 400
-
-    file = request.files[data_key]
-    if request.files[data_key].filename == '':
-        return jsonify({"error": "No Image file selected"}), 400
-
-    mimetype = file.mimetype.split("/")[0]
-    if not mimetype in ["image", "video"]:
-        return jsonify({"error": "No Image file selected"}), 400
-
-    # save on local storage
-    rel_path = db.get_relative_path(file.filename)
-    file_path = os.path.join(db.get_store_path(), rel_path)
-    file.save(file_path)
-
-    # assign data info
-    title = request.form.get('title', 'Untitled')
-    description = request.form.get('description', 'Untitled')
-
-    # Call the deepfake detection function
-    is_deepfake = get_deepfake_result(file_path)
-
-    # Save Image reference to MongoDB
-    image_data = {
-        "title": title,
-        "description": description,
-        "path": os.path.join(db.ARTICLE_PATH, rel_path),
-        "image_or_video": mimetype,
-        "is_deepfake": is_deepfake
-    }
-    image_id = db.insert(image_data).inserted_id
-
-    return jsonify(str(image_id))
 
 
 @app.route('/api/images', methods=['GET'])
@@ -110,7 +69,7 @@ def serve_images(filename):
     return send_from_directory(db.get_store_path(), filename)
 
 
-@app.route(f'/classify/<ipfshash>', methods=['POST'])
+@app.route(f'/api/classify/<ipfshash>', methods=['POST'])
 def classify(ipfshash):
     image_data = get_image_from_ipfs(ipfshash)
 
