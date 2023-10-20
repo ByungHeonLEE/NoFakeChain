@@ -15,7 +15,9 @@ function ImageGallery() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/api/images");
+        const response = await axios.get(
+          "http://3.141.243.153:5000/api/images"
+        );
         setImages(response.data);
         setLoading(false);
       } catch (error) {
@@ -33,7 +35,7 @@ function ImageGallery() {
     if (image.image_or_video == "image") {
       return (
         <img
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
           alt={image.title}
           className="card-img-top"
         />
@@ -41,7 +43,7 @@ function ImageGallery() {
     } else if (image.image_or_video == "video") {
       return (
         <video
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
           alt={image.title}
           className="card-img-top"
           controls
@@ -50,7 +52,7 @@ function ImageGallery() {
     } else {
       return (
         <div
-          src={`http://127.0.0.1:5000/${image.path}`}
+          src={`https://ipfs.io/ipfs//${image.ipfs_hash}`}
           alt={image.title}
           className="card-img-top"
         />
@@ -67,11 +69,12 @@ function ImageGallery() {
             <div key={image._id} className="col-md-4 mb-4">
               <div className="card">
                 {content(image)}
-                <div>The path is: {image.path}</div>
+                <div>The ipfs_hash is: {image.ipfs_hash}</div>
                 <div className="card-body">
                   <h5 className="card-title">{image.title}</h5>
-                  <p className="card-text">{image.description}</p>
-                  <p className="card-text">Deepfake property</p>
+                  <p className="card-text">
+                    is_deepfaked: {image.is_deepfaked}
+                  </p>
                 </div>
               </div>
             </div>
