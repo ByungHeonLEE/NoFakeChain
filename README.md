@@ -6,7 +6,6 @@ submitted track
 - Polygon
 
 
-
 # API-Server
 ## Install
 guide to run api server in local
@@ -100,9 +99,24 @@ npm install
 npm run start
 ```
 
+## Scripts
+- deployChainlink : deploy FunctionsConsumer contract for Chainlink Functions
+- deployNFT : deply ERC721 NFT
+- getTokenURI : getTokenURI of NFT
+
+## Deployed Contracts
 - ERC721 contract (ERC721, ERC721URIStorage, ERC721Pausable, Ownable, ERC721Burnable)
 - FunctionsConsumer contract (Consumer Contract for chainlink functions)
 
+## .env format
+
+```
+PRIVATE_KEY=
+TEST_PRIVATE_KEY=
+MUMBAI_SCAN=
+POLYGON_MUMBAI_RPC_URL=https://polygon-mumbai.infura.io/v3/
+RPC_URL_MATIC=https://polygon-mumbai.infura.io/v3/
+```
 
 
 
