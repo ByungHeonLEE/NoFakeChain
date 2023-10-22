@@ -10,7 +10,7 @@ const fromSymbol = args[0];
 const toSymbol = args[1];
 
 // make HTTP request
-const url = process.env.AI_URL;
+const url = "http://3.141.243.153:5000/api/classify/Qma85gCmHuFNbb8F18o4QctegyT6ZuPKrVaoyopiXAfhgo";
 // console.log(`HTTP GET Request to ${url}?fsyms=${fromSymbol}&tsyms=${toSymbol}`);
 
 // construct the HTTP Request object. See: https://github.com/smartcontractkit/functions-hardhat-starter-kit#javascript-code

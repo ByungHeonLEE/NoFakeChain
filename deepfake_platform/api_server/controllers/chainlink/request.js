@@ -21,8 +21,6 @@ const explorerUrl = "https://mumbai.polygonscan.com";
 
 const chainLinkCall = async () => {
   // hardcoded for Polygon Mumbai
-
-
   // Initialize functions settings
   const source = fs
     .readFileSync(path.resolve(__dirname, "source.js"))
@@ -212,7 +210,6 @@ async function decodeResponse(requestId) {
     }
   }
 }
-
 
 module.exports = {
   chainLinkCall,

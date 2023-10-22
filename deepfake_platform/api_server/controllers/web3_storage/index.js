@@ -1,4 +1,5 @@
 const {Web3Storage,File} = require("web3.storage");
+require('dotenv').config();
 
 function getAccessToken () {
   // If you're just testing, you can paste in a token
@@ -41,6 +42,20 @@ function makeFileObjects(file){
   return [new File([file.buffer],file.originalname)]
 }
 
+function makeFileObjectsMetaData(cid, isFake) {
+  const obj =
+  {"name": "NFC", "description" :`${isFake}`, "image": `https://ipfs.io/ipfs/${cid}`};
+  const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
+
+  const files = [
+    new File([blob], 'metadata.json')
+  ]
+
+  console.log("files: ",files)
+
+  return files
+}
+
 async function storeFiles (file) {
   const files = makeFileObjects(file);
     const client = makeStorageClient()
@@ -49,9 +64,17 @@ async function storeFiles (file) {
     return cid
 }
 
-module.exports = {
-  storeFiles,
+async function storeMetadata (cid,isReal) {
+  const files = makeFileObjectsMetaData(cid,isReal);
+    const client = makeStorageClient()
+    const cid_metadata = await client.put(files)
+    console.log("cid_metadata >>", cid_metadata);
+    return cid_metadata
 }
 
+module.exports = {
+  storeFiles,
+  storeMetadata
+}
 if(require.main === module){
 }

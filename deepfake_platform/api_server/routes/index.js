@@ -4,6 +4,7 @@ const { chainLinkCall, decodeResponse } = require('../controllers/chainlink/requ
 const { mintNFT } = require('../controllers/nft/mint');
 var router = express.Router();
 var upload = multer()
+require('dotenv').config();
 
 const web3_storage = require("../controllers/web3_storage/index");
 const mongodb = require("../controllers/mongodb/index");
@@ -21,13 +22,19 @@ router.get('/execute', async function(req, res, next) {
   console.log("requestId >>", requestId);
   const decodeCLresponse = await decodeResponse(requestId);
   console.log("decodeCLresponse >>", decodeCLresponse);
-  const mint_Tx = await mintNFT("0xa40aa030A3ba4f42FDCd2B7bC33d5B03770290ea","0xa40aa030A3ba4f42FDCd2B7bC33d5B03770290ea");
-  console.log("mint_Tx >>", mint_Tx);
-  res.send(`
-  chainlik functions transaction is ${cl_tx.hash} 
-  functions response is ${decodeCLresponse} and 
+  const tokenURI = await web3_storage.storeMetadata(process.env.IMG_IPFS,decodeCLresponse);
+  const nftAddress = "0x6b08108e2Cc129258886faE62e9E4f6e84832Ff2";
+  const mint_Tx = await mintNFT(nftAddress,"0xA7FbD0905F8476AbE8E8111c95245781D0cbA5B0",`https://ipfs.io/ipfs/${tokenURI}/metadata.json`);
+  console.log(mint_Tx)
+  res.send(
+  `
+  chainlik functions transaction is ${cl_tx.hash}
+  functions response is ${decodeCLresponse} and
+  token URI on filecoin is ${tokenURI} and
   mint tx is ${mint_Tx.hash}
-  `);
+  opensea nft is https://testnets.opensea.io/assets/mumbai/${nftAddress}
+  `
+  );
 });
 
 router.post('/api/upload', upload.single('image'),async function(req,res){
@@ -40,6 +47,7 @@ router.post('/api/upload', upload.single('image'),async function(req,res){
   console.log("insert info: ",info)
   const result = await mongodb.insert(info)
   console.log("insert success: ",result)
+
   res.send(cid)
 })
 
