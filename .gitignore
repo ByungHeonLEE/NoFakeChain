@@ -1,0 +1,16 @@
+.DS_Store
+.venv
+.env.enc
+dataset/
+.env
+/node_moudles
+/deepfake_platform/data/
+
+*.pyc
+__pycache__/
+
+*.pem
+*.env
+node_modules/
+package.json
+package-lock.json
