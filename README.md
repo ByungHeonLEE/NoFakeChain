@@ -1,9 +1,15 @@
 # NoFakeChain
 
-submitted track
-- Chainlink Functions
-- FileCoin(WEB3Storage)
-- Polygon
+- We use blockchain & AI to prevent deepfake
+
+- We records and manages the deep fake status on the blockchain in a decentralized form by determining the AI status with a single API call, uploading IPFS image data, and issuing NFTs with the uploaded image.
+
+## submitted track
+- Chainlink Functions : The ability to determine deepfakes with AI is transparently determined by a third party through chainlink functions.
+
+- FileCoin(WEB3Storage) : The results of the AI's deepfake determination are recorded in IPFS storage and then issued as nFTs to permanently immortalize the deepfake.
+  
+- Polygon : Polygon, which supports various services including chainlink functions and has a fast speed and an active NFT market, was selected as the network.
 
 ``` mermaid
 graph TD
@@ -37,7 +43,10 @@ opensea assets link : https://testnets.opensea.io/assets/mumbai/0x6b08108e2Cc129
 # deepfake_platform
 
 ## Overview
-This repo is for client and AI
+frontend client and AI server
+
+AI server is open to public so that nodes from chainlink functions could call
+
  
 ## server
 
