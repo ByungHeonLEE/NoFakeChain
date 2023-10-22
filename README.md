@@ -5,6 +5,35 @@ submitted track
 - FileCoin(WEB3Storage)
 - Polygon
 
+```
+graph TD
+    A[Client] -->|GET /execute| B[Server]
+    B -->|Invoke Chainlink functions| C[Chainlink Node]
+    C -->|Request AI Analysis| O[AI Server]
+    O -->|Analysis Result| C
+    C --> D[Return transaction & requestId to Server]
+    B -->|Store metadata| E[Web3_Storage]
+    E --> F[Return tokenURI]
+    B -->|Mint NFT| G[NFT Contract]
+    G --> H[Return mint tx]
+    B -->|Response| A
+
+    I[Client] -->|POST /api/upload| J[Server]
+    J -->|Store image| K[Web3_Storage]
+    K --> L[Return cid]
+    J -->|Insert in DB| M[MongoDB]
+    M --> N[Confirm insertion]
+    J -->|Response| I
+
+    O --> P[Access data from MongoDB]
+    M --> P
+
+    style O fill:#f9d71c,stroke:#333,stroke-width:4px
+```
+
+# OpenSea Assets
+opensea assets link : https://testnets.opensea.io/assets/mumbai/0x6b08108e2Cc129258886faE62e9E4f6e84832Ff2
+
 # deepfake_platform
 
 ## Overview
@@ -120,6 +149,22 @@ Using a tool like curl, the request could look like:
 ```
 curl -X POST -F "image=@path_to_image.jpg" http://your_api_url/api/upload
 ```
+### sequance diagram
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant Web3_Storage
+    participant MongoDB
+
+    Client->>Server: POST /api/upload (image)
+    Server->>Web3_Storage: Store image on Filecoin
+    Web3_Storage->>Server: Return cid of image
+    Server->>MongoDB: Insert image cid and deepfake status
+    MongoDB->>Server: Confirm insertion
+    Server->>Client: Send back cid
+```
+
 ## .env format
 ```
 RPC_URL_MATIC=https://polygon-mumbai.infura.io/v3/
