@@ -18,7 +18,7 @@ graph TD
     G --> H[Return mint tx]
     B -->|Response| A
 
-    I[Client] -->|POST /api/upload| J[Server]
+    A[Client] -->|POST /api/upload| J[Server]
     J -->|Store image| K[Web3_Storage]
     K --> L[Return cid]
     J -->|Insert in DB| M[MongoDB]
