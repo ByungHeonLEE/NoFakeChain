@@ -5,6 +5,31 @@ submitted track
 - FileCoin(WEB3Storage)
 - Polygon
 
+# deepfake_platform
+
+## Overview
+This repo is for client and AI
+ 
+## server
+
+```sh
+# up mongodb
+docker compose -f docker-compose.mongodb.yml up -d
+
+# pip install
+pip install -r requirements.txt
+
+# run server
+python app.py
+```
+
+## client
+```
+cd ./deepfake_platform/client 
+npm install
+npm run build
+npm run start
+```
 
 # API-Server
 ## Install
@@ -46,13 +71,32 @@ sequenceDiagram
     participant NFT_Contract
 
     Client->>Server: GET /execute
+    activate Server
+
     Server->>Chainlink: Invoke Chainlink functions
-    Chainlink->>Server: Return transaction & requestId
+    activate Chainlink
+    Chainlink-->>Server: Return transaction hash & requestId
+    deactivate Chainlink
+
+    note over Server: Process Chainlink response
+
     Server->>Web3_Storage: Store metadata on Filecoin
-    Web3_Storage->>Server: Return tokenURI
+    activate Web3_Storage
+    Web3_Storage-->>Server: Return tokenURI
+    deactivate Web3_Storage
+
+    note over Server: Prepare data for NFT minting
+
     Server->>NFT_Contract: Mint NFT with tokenURI
-    NFT_Contract->>Server: Return mint transaction
-    Server->>Client: Send Chainlink tx, tokenURI, mint tx & Opensea link
+    activate NFT_Contract
+    NFT_Contract-->>Server: Return mint transaction hash
+    deactivate NFT_Contract
+
+    note over Server: Compile response details
+
+    Server-->>Client: Send Chainlink tx, tokenURI, mint tx & Opensea link
+    deactivate Server
+
 ```
 
 ### Request:
