@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 function ImageUpload() {
   const [file, setFile] = useState(null);
@@ -17,12 +18,15 @@ function ImageUpload() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://3.141.243.153:5000/api/upload-to-ipfs", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "http://3.141.243.153:5000/api/upload-to-ipfs",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      console.log("Image uploaded successfuly to IPFS", response["ipfs_hash"]);
       setMessage("Image uploaded successfuly", response["ipfs_hash"]);
-
 
       // Show the deepfake detection modal with spinner
       setShowDeepfakeModal(true);
@@ -44,7 +48,9 @@ function ImageUpload() {
   const chainlinkFunctions = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post("http://localhost:3000/execute");
+      const response = await fetch("http://localhost:4500/execute", {
+        method: "POST",
+      });
       console.log(response.data);
       setIsLoading(false);
       alert("API is executing!"); // You can replace this with a more user-friendly notification, e.g. a toast

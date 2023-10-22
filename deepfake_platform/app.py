@@ -77,9 +77,6 @@ def upload_image():
     title = request.form.get('title', 'Untitled')
     description = request.form.get('description', 'Untitled')
 
-    # Call the deepfake detection function
-    is_deepfake = get_deepfake_result(file_path)
-
     # Save Image reference to MongoDB
     image_data = {
         "title": title,
@@ -124,10 +121,10 @@ def classify(ipfshash):
     refined_image = image_detector.refine_image(img_gray)
     
     result = image_detector.classify_image(refined_image)
-    query = {"ipfs_hash": ipfshash}
+    query = {"cid": ipfshash}
     update = {
         "$set": {
-            "is_deepfaked": str(result)
+            "is_deepfake": str(result)
         }
     }
 
